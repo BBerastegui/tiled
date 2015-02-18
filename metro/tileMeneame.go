@@ -1,40 +1,67 @@
 package main
 
 import (
-                "html/template"
-        //  "io/ioutil"
-        //        "net/http"
-        "fmt"
-              "os"
-            "bufio"
-       )
+	"bufio"
+	"fmt"
+	"html/template"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"regexp"
+)
+
+// Initialize the map of regex
+var r map[string]*regexp.Regexp
 
 func main() {
 
-    type News struct {
-        Level int
-        Title string
-        Content string
-        Html string
-    }
+	r = make(map[string]*regexp.Regexp)
 
-    var sn [1]News
+	r["news"], _ = regexp.Compile(`<div class="news-summary">(.*?)</span></span>\s+</div>\s+</div>\s+</div>`)
+	r["title"], _ = regexp.Compile(`<h2>\s+<a .*>(.*?)\s+</a>\s+</h2>`)
+	type News struct {
+		Level   int
+		Title   string
+		Content string
+		Html    string
+	}
 
-        sn[0].Level = 0
-        sn[0].Title = "TITLE 0"
-        sn[0].Content = "CONTENT 0"
-        sn[0].Html = "<b>HTML 0</b>"
+	// Setup the request to the target
+	req, err := http.NewRequest("GET", "https://www.meneame.net", nil)
 
-        fmt.Println(sn[0])
-        t, err := template.ParseFiles("index.html")
-        if (err != nil){
-            fmt.Println(err)
-        }
-        // Create writer to file
-        f, _ := os.Create("made.html")
-        defer f.Close()
+	client := &http.Client{}
+	// Perform request and store response on "resp"
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 
-        w := bufio.NewWriter(f)
-        t.Execute(w,sn)
-        w.Flush()
+	// Store Body
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	news := r["news"].FindStringSubmatch(string(body))
+	fmt.Println(news[1])
+
+	title := r["title"].FindStringSubmatch(string(news[1]))
+	fmt.Println(title[1])
+
+	var sn [1]News
+	sn[0].Level = 0
+	sn[0].Title = "TITLE 0"
+	sn[0].Content = "CONTENT 0"
+	sn[0].Html = "<b>HTML 0</b>"
+
+	fmt.Println(sn[0])
+	t, err := template.ParseFiles("index.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	// Create writer to file
+	f, _ := os.Create("made.html")
+	defer f.Close()
+
+	w := bufio.NewWriter(f)
+	t.Execute(w, sn)
+	w.Flush()
 }
