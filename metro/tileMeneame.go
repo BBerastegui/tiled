@@ -16,6 +16,7 @@ func main() {
 
 	r["news"], _ = regexp.Compile(`<div class="news-summary">(.*?)</span></span>\s+</div>\s+</div>\s+</div>`)
 	r["title"], _ = regexp.Compile(`<h2>\s+<a .*>(.*?)\s+</a>.*</h2>`)
+	r["votes"], _ = regexp.Compile(`<div class="votes">\s+<a id=".*>(\d+)</a>\s+meneos\s+</div>`)
 
 	type News struct {
 		Votes     int
@@ -55,6 +56,8 @@ func main() {
 		//		fmt.Println(news[k][1])
 		title := r["title"].FindStringSubmatch(string(news[k][1]))
 		fmt.Println(title[1])
+		votes := r["votes"].FindStringSubmatch(string(news[k][1]))
+		fmt.Println(votes[1])
 	}
 	/*
 		var sn [1]News
