@@ -81,11 +81,9 @@ width: 100%;
 <div class="row"> <!-- ROW -->
 <div class="col-xs-12">
     <div class="tile full">
-        {{index .Level 0}}
-        {{index .Litle 0}}
-        {{index .Content 0}}
-        {{index .Html 0}}
-
+	{{range .}}
+		{{.Title}}
+	{{end}}
     </div>
 </div>
 </div> <!-- / ROW -->
