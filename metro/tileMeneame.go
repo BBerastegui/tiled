@@ -17,6 +17,7 @@ func main() {
 	r["news"], _ = regexp.Compile(`<div class="news-summary">(.*?)</span></span>\s+</div>\s+</div>\s+</div>`)
 	r["title"], _ = regexp.Compile(`<h2>\s+<a .*>(.*?)\s+</a>.*</h2>`)
 	r["votes"], _ = regexp.Compile(`<div class="votes">\s+<a id=".*>(\d+)</a>\s+meneos\s+</div>`)
+	r["clicks"] = regexp.Compile()
 
 	type News struct {
 		Votes     int
